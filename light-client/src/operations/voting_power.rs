@@ -10,7 +10,6 @@ use std::fmt;
 
 use tendermint::block::CommitSig;
 use tendermint::lite::types::TrustThreshold as _;
-use tendermint::lite::types::ValidatorSet as _;
 use tendermint::vote::{SignedVote, Vote};
 
 #[derive(Copy, Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -31,16 +30,23 @@ impl fmt::Display for VotingPowerTally {
 }
 
 pub trait VotingPowerCalculator: Send {
-    fn total_power_of(&self, validators: &ValidatorSet) -> u64;
+    fn total_power_of(&self, validator_set: &ValidatorSet) -> u64 {
+        validator_set
+            .validators()
+            .iter()
+            .fold(0u64, |total, val_info| {
+                total + val_info.voting_power.value()
+            })
+    }
 
     fn check_enough_trust(
         &self,
         untrusted_header: &SignedHeader,
-        untrusted_validators: &ValidatorSet,
+        trusted_validators: &ValidatorSet,
         trust_threshold: TrustThreshold,
     ) -> Result<(), VerificationError> {
         let voting_power =
-            self.voting_power_in(untrusted_header, untrusted_validators, trust_threshold)?;
+            self.voting_power_in(untrusted_header, trusted_validators, trust_threshold)?;
 
         if trust_threshold.is_enough_power(voting_power.tallied, voting_power.total) {
             Ok(())
@@ -77,10 +83,6 @@ pub trait VotingPowerCalculator: Send {
 pub struct ProdVotingPowerCalculator;
 
 impl VotingPowerCalculator for ProdVotingPowerCalculator {
-    fn total_power_of(&self, validators: &ValidatorSet) -> u64 {
-        validators.total_power()
-    }
-
     fn voting_power_in(
         &self,
         signed_header: &SignedHeader,
