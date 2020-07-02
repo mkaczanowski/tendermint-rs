@@ -1,6 +1,6 @@
 [package]
 name       = "tendermint"
-version    = "0.14.1" # Also update `html_root_url` in lib.rs and
+version    = "0.14.2" # Also update `html_root_url` in lib.rs and
                       # depending crates (rpc, light-node, ..) when bumping this
 license    = "Apache-2.0"
 homepage   = "https://www.tendermint.com/"
@@ -45,9 +45,9 @@ serde_json = "1"
 serde_bytes = "0.11"
 serde_repr = "0.1"
 sha2 = { version = "0.9", default-features = false }
-signatory = { version = "0.20.0", features = ["ed25519", "ecdsa"], git = "https://github.com/joe-bowman/signatory.git", branch = "0.20.1" }
-signatory-dalek = { version = "0.20.1", git = "https://github.com/joe-bowman/signatory.git", branch = "0.20.1" }
-signatory-secp256k1 = { version = "0.20.1", git = "https://github.com/joe-bowman/signatory.git", branch = "0.20.1" }
+signatory = { version = "0.20.0", features = ["ed25519", "ecdsa"], git = "https://github.com/ChorusOne/signatory.git", tag = "v0.20.1" }
+signatory-dalek = { version = "0.20.1", git = "https://github.com/ChorusOne/signatory.git", tag = "v0.20.1" }
+signatory-secp256k1 = { version = "0.20.1", git = "https://github.com/ChorusOne/signatory.git", tag = "v0.20.1" }
 subtle = "2"
 subtle-encoding = { version = "0.5", features = ["bech32-preview"] }
 tai64 = { version = "3", features = ["chrono"] }
