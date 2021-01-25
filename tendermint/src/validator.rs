@@ -6,7 +6,6 @@ use signatory::{
     ed25519,
     signature::{Signature, Verifier},
 };
-use signatory_dalek::Ed25519Verifier;
 use subtle_encoding::base64;
 
 use crate::amino_types::message::AminoMessage;
@@ -79,9 +78,10 @@ impl Info {
     /// public key.
     pub fn verify_signature(&self, sign_bytes: &[u8], signature: &[u8]) -> bool {
         if let Some(pk) = &self.pub_key.ed25519() {
-            let verifier = Ed25519Verifier::from(pk);
-            if let Ok(sig) = ed25519::Signature::from_bytes(signature) {
-                return verifier.verify(sign_bytes, &sig).is_ok();
+            if let Ok(pk) = ed25519_dalek::PublicKey::from_bytes(&pk.into_bytes()) {
+                if let Ok(sig) = ed25519::Signature::from_bytes(signature) {
+                    return pk.verify(sign_bytes, &sig).is_ok()
+                }
             }
         }
         false

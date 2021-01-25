@@ -3,8 +3,6 @@
 use crate::public_key::PublicKey;
 use serde::{de, de::Error as _, ser, Deserialize, Serialize};
 use signatory::ed25519;
-use signatory::public_key::PublicKeyed;
-use signatory_dalek::Ed25519Signer;
 use subtle_encoding::{Base64, Encoding};
 use zeroize::{Zeroize, Zeroizing};
 
@@ -44,22 +42,16 @@ pub struct Ed25519Keypair([u8; ED25519_KEYPAIR_SIZE]);
 impl Ed25519Keypair {
     /// Get the public key associated with this keypair
     pub fn public_key(&self) -> PublicKey {
-        let seed = ed25519::Seed::from_keypair(&self.0[..]).unwrap();
-        let pk = signatory_dalek::Ed25519Signer::from(&seed)
-            .public_key()
-            .unwrap();
+        let pk = ed25519_dalek::Keypair::from_bytes(&self.0[..])
+            .unwrap()
+            .public;
 
-        PublicKey::from(pk)
+        PublicKey::from_raw_ed25519(&pk.to_bytes()).unwrap()
     }
 
     /// Get the Signatory Ed25519 "seed" for this signer
     pub fn to_seed(&self) -> ed25519::Seed {
         ed25519::Seed::from(self)
-    }
-
-    /// Get a Signatory Ed25519 signer (ed25519-dalek based)
-    pub fn to_signer(&self) -> Ed25519Signer {
-        Ed25519Signer::from(&self.to_seed())
     }
 }
 
